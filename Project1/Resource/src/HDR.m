@@ -1,17 +1,17 @@
 %% readImg
+cd ../input_image/;
 m = 4000;
 n = 6000;
-p = dlmread('ChosenPoints4.txt');
+p = dlmread('ChosenPoints.txt');
 numPic = 13;
 numPixel = size(p,1);
 
 img_cell = cell(numPic,1);
-cd img;
 for i=1:numPic
    s = "IMG_0" + string(i+110) + ".jpg";
    img_cell{i} = imread(char(s));
 end
-cd ..;
+cd ../src;
 
 %% Setting variables
 %  Z(i,j) : pixel value of the ith pixel in jth picture
@@ -72,5 +72,7 @@ for c=1:3
 end
 
 RGB = tonemap(radianceMap);
-
+imshow(RGB);
+hdrwrite(radianceMap,'../result/MacArthurBridge.hdr');
+imwrite(RGB,'../result/MacArthurBridge.jpg');
    
