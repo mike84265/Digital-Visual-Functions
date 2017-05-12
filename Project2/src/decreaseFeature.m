@@ -32,4 +32,4 @@ for i=1:numPoints
    end
 end
 
-features = loc(1+r:m+r, 1+r:n+r);
+features = logical(loc(1+r:m+r, 1+r:n+r));
