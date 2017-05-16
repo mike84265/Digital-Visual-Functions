@@ -1,24 +1,28 @@
-function [pointList, logicMtx] = decreaseFeature(points, r)
+function [pointList, logicMtx] = decreaseFeature(points, featureloc, r)
 m = size(points,1);
 n = size(points,2);
-loc = zeros(m+r*2, n+r*2);
-loc(r+1:r+m, r+1:r+n) = points > 10;
+loc = false(m+r*2, n+r*2);
+loc(r+1:r+m, r+1:r+n) = featureloc;
 numPoints = sum(sum(loc));
-X = zeros(numPoints,3);
+tmp = zeros(numPoints,3);
 pointList = zeros(numPoints,3);
-k=1;
-for i=1:m
-   for j=1:n
-      if (loc(r+i,r+j))
-         X(k,1) = i;
-         X(k,2) = j;
-         X(k,3) = points(i,j);
-         k = k+1;
-      end
-   end
-end
-[list I] = sort(X,1, 'descend');
-list = X(I(:,3)',:);
+% k=1;
+% for i=1:m
+%    for j=1:n
+%       if (loc(r+i,r+j))
+%          tmp(k,1) = i;
+%          tmp(k,2) = j;
+%          tmp(k,3) = points(i,j);
+%          k = k+1;
+%       end
+%    end
+% end
+[Y X] = meshgrid(1:n,1:m);
+tmp(:,1) = X(loc(r+1:r+m, r+1:r+n));
+tmp(:,2) = Y(loc(r+1:r+m, r+1:r+n));
+tmp(:,3) = points(loc(r+1:r+m, r+1:r+n));
+[list I] = sort(tmp,1, 'descend');
+list = tmp(I(:,3)',:);
 
 
 window = false(2*r+1, 2*r+1);
