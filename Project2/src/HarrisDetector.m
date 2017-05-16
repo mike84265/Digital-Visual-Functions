@@ -11,6 +11,7 @@ Gd = fspecial('gaussian',[2*N+1, 2*N+1], sd);
 Gi = fspecial('gaussian',[2*N+1, 2*N+1], si);
 % Gi = exp(-(X.^2 + Y.^2) / (2*si^2));
 % Gi = Gi / sum(sum(Gi));
+% img = conv2(img,Gd,'same');
 px = conv2(img,dx,'same'); 
 py = conv2(img,dy,'same'); 
 px = conv2(px,Gd,'same');   
