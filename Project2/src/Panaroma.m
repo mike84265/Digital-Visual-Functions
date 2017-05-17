@@ -9,6 +9,7 @@ img = cell(numImg,1);
 GrayImg = cell(numImg,1);
 fdscpt = cell(numImg,1);
 indexPair = cell(numImg-1, 1);
+tform(numImg) = projective2d(eye(3));
 
 img{1} = imread('../input/IMG_8917_S.JPG');
 img{2} = imread('../input/IMG_8918_S.JPG');
@@ -39,9 +40,9 @@ for i=1:numImg
    toc;
 end
 
-%% Using exhausive search to match features
-for i=1:numImg-1
-   indexPair{i} = FeatureMatch(fdscpt{i},fdscpt{i+1},5);
+%% Using exhausive search and RANSAC to match features
+for i=2:numImg
+   [indexPair{i-1}, projMatrix] = FeatureMatch(fdscpt{i},fdscpt{i-1});
+   tform(i) = projective2d(projMatrix);
 end
 
-% fitgeotrans(movingPoints, fixedPoints, transformationType);
