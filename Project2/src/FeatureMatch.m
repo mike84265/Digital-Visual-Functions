@@ -1,7 +1,6 @@
-function indexPair = FeatureMatch(ft1, ft2)
+function indexPair = FeatureMatch(ft1, ft2, threshold)
 % ft1, ft2: N-by-2 cell matrix. First column is the coordinate, second
 % column is the feature descriptor (8*8 matrix).
-thr = 1;
 n1 = size(ft1,1);
 n2 = size(ft2,1);
 indexPair = zeros(min(n1,n2),4);
@@ -13,7 +12,7 @@ for i=1:n1
       dist(j) = sum(sum( (ft1{i,2} - ft2{j,2}).^2 ));
    end
    [mindist, index] = min(dist);
-   if mindist < thr
+   if mindist < threshold
       indexPair(k,1:2) = ft1{i,1};
       indexPair(k,3:4) = ft2{index,1};
       % indexPair(k,5) = mindist;
@@ -21,4 +20,4 @@ for i=1:n1
    end
 end
 
-indexPair = indexPair(1:k-1);
+indexPair = indexPair(1:k-1,:);
