@@ -35,12 +35,12 @@ while(maxInlinerRate < 0.85)
       return;
    end
    samplePoints = indexPair(randperm(k,numSample),:);
-   A = [samplePoints(:,1:2), ones(numSample,1)];
-   cx = A\samplePoints(:,3);
-   cy = A\samplePoints(:,4);
+   A = [samplePoints(:,[2 1]), ones(numSample,1)];
+   cx = A\samplePoints(:,4);
+   cy = A\samplePoints(:,3);
    tform = [cx, cy];
-   estimation = [indexPair(:,1:2) ones(k,1)] * tform;
-   inliners = sum(((estimation - indexPair(:,3:4)).^2), 2) < 100;
+   estimation = [indexPair(:,[2 1]) ones(k,1)] * tform;
+   inliners = sum(((estimation - indexPair(:,[4 3])).^2), 2) < 100;
    inlinerRate = sum(inliners) / k;
    if (inlinerRate > 0.5)
       indexPair = indexPair(inliners,:);
