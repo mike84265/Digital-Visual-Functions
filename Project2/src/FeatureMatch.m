@@ -26,7 +26,6 @@ indexPair = indexPair(1:k-1,:);
 %% RANSAC
 
 maxInlinerRate = 0;
-bestTform = zeros(3,3);
 while(maxInlinerRate < 0.85)
    k = size(indexPair,1);
    numSample = 6;
@@ -47,8 +46,10 @@ while(maxInlinerRate < 0.85)
    end
    if (inlinerRate > maxInlinerRate)
       maxInlinerRate = inlinerRate;
-      bestTform = tform;
    end
 end
 
-tform = bestTform;
+A = [indexPair(:,[2 1]), ones(size(indexPair,1),1)];
+cx = A\indexPair(:,4);
+cy = A\indexPair(:,3);
+tform = [cx, cy];

@@ -1,6 +1,6 @@
 %% Define constants
-numImg = 3;
-focalLength = 1666.67;
+numImg = 4;
+focalLength = 35 * 1500 / 22.5;
 % FocalLength = 6000 pixels * 25 mm / 22.5 mm = 6667
 % For downsampled image, focalLength = 1500 pixels * 25mm / 22.5mm = 1667
 
@@ -11,13 +11,17 @@ fdscpt = cell(numImg,1);
 indexPair = cell(numImg-1, 1);
 tform(numImg) = projective2d(eye(3));
 
-img{1} = imread('../input/IMG_8917_S.JPG');
-img{2} = imread('../input/IMG_8918_S.JPG');
-img{3} = imread('../input/IMG_8919_S.JPG');
+img{1} = imread('../input_image/IMG_8910_S.jpg');
+img{2} = imread('../input_image/IMG_8911_S.jpg');
+img{3} = imread('../input_image/IMG_8912_S.jpg');
+img{4} = imread('../input_image/IMG_8913_S.jpg');
 
 %% Warp images into cylindrical coordinate
 for i=1:numImg
+   fprintf('Turning image %d into cylindrical...\n', i);
+   tic;
    img{i} = warp2cylindrical(img{i},focalLength);
+   toc;
 end
 
 m = size(img{1},1);
@@ -46,13 +50,13 @@ for i=2:numImg
    tic;
    [indexPair{i-1}, projMatrix] = FeatureMatch(fdscpt{i},fdscpt{i-1});
    tform(i) = projective2d([ projMatrix, [0; 0; 1] ]);
-   tform(i).T = tform(i-1).T * tform(i).T;
+   tform(i).T = tform(i).T * tform(i-1).T;
    toc;
 end
 
 %% Initialize the panaroma canvas
 for i=1:numImg
-   [xlim(i,:) ylim(i,:)] = outputLimits(tform(i), ...
+   [xlim(i,:),ylim(i,:)] = outputLimits(tform(i), ...
       [1 size(img{i},2)], [1 size(img{i},1)]);
    img{i} = imwarp(img{i},tform(i));
    ref(i) = imref2d(size(img{i}), xlim(i,:), ylim(i,:));
@@ -65,33 +69,34 @@ ymax = max(ylim(:,2));
 width = round(xmax - xmin);
 height = round(ymax - ymin);
 
-panaroma = zeros(height, width, 3, 'like', img{1});
-panaromaRef = imref2d(size(panaroma), [xmin xmax], [ymin ymax]);
+panorama = zeros(height, width, 3, 'like', img{1});
+panoramaRef = imref2d(size(panorama), [xmin xmax], [ymin ymax]);
 
 %% Stick the pixels to the panaroma canvas
-[imin, jmin] = worldToSubscript(panaromaRef,xlim(1,1), ylim(1,1));
+[imin, jmin] = worldToSubscript(panoramaRef,xlim(1,1), ylim(1,1));
 % [imax, jmax] = worldToSubscript(panaromaRef,xlim(1,2), ylim(1,2));
 imax = imin + size(img{1},1) - 1;
 jmax = jmin + size(img{1},2) - 1;
-panaroma(imin:imax, jmin:jmax, :) = img{1};
+panorama(imin:imax, jmin:jmax, :) = img{1};
 
 for i=2:numImg
    % overlapXmin = xlim(i,1);
    % overlapXmax = xlim(i-1,2);
    % Handle overlap area
-   [imin, jmin] = worldToSubscript(panaromaRef,ceil(xlim(i,1)), ceil(ylim(i,1)));
-   [imax, jmax] = worldToSubscript(panaromaRef,floor(xlim(i,2)), floor(ylim(i,2)));
+   ovimax = imax;  ovjmax = jmax;
+   [ovimin, ovjmin] = worldToSubscript(panoramaRef,ceil(xlim(i,1)),ceil(ylim(i,1)));
+   % [ovimax, ovjmax] = worldToSubscript(panaromaRef,floor(xlim(i-1,2)),floor(ylim(i-1,2)));
+   
+   [imin, jmin] = worldToSubscript(panoramaRef,ceil(xlim(i,1)), ceil(ylim(i,1)));
+   [imax, jmax] = worldToSubscript(panoramaRef,floor(xlim(i,2)), floor(ylim(i,2)));
    % imax = imin + size(img{i},1) - 1;
    % jmax = jmin + size(img{i},2) - 1;
    
-   [ovimin, ovjmin] = worldToSubscript(panaromaRef,ceil(xlim(i,1)),ceil(ylim(i,1)))
-   [ovimax, ovjmax] = worldToSubscript(panaromaRef,floor(xlim(i-1,2)),floor(ylim(i-1,2)))
    overlapLength = ovjmax - ovjmin + 1;
    weight = meshgrid(0:overlapLength-1, ovimin:ovimax) / overlapLength;
    weight = cat(3, weight, weight, weight);
-   size(weight)
-   panaroma(ovimin:ovimax, ovjmin:ovjmax, :) = ...
-      uint8(double(panaroma(ovimin:ovimax, ovjmin:ovjmax, :)) .* (1-weight));  
+   panorama(ovimin:ovimax, ovjmin:ovjmax, :) = ...
+      uint8(double(panorama(ovimin:ovimax, ovjmin:ovjmax, :)) .* (1-weight));  
    
    
    [bndi1, bndj1] = worldToSubscript(ref(i),floor(xlim(i-1,2)), ceil(ylim(i,1)));
@@ -103,7 +108,9 @@ for i=2:numImg
    weight = cat(3,weight,weight,weight);
    img{i}(bndi1:bndi2, 1:bndj, :) = ...
       uint8(double(img{i}(bndi1:bndi2, 1:bndj,:)) .* weight);
-   panaroma(imin:imax, jmin:jmax, :) = ...
-      panaroma(imin:imax, jmin:jmax, :) + img{i}(1:(imax-imin+1), 1:(jmax-jmin+1), :);
+   panorama(imin:imax, jmin:jmax, :) = ...
+      panorama(imin:imax, jmin:jmax, :) + img{i}(1:(imax-imin+1), 1:(jmax-jmin+1), :);
 end
 
+imshow(panorama);
+imwrite(panorama,'../result/panaroma.jpg','jpg');
