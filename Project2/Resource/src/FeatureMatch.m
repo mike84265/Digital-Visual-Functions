@@ -24,7 +24,8 @@ end
 indexPair = indexPair(1:k-1,:);
 
 %% RANSAC
-
+%  Randomly choose numSample points to estimate the transformation,
+%  then reject the outliners if the samples are correct.
 maxInlinerRate = 0;
 while(maxInlinerRate < 0.85)
    k = size(indexPair,1);

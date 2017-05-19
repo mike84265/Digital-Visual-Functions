@@ -1,8 +1,7 @@
 %% Define constants
 numImg = 4;
 focalLength = 35 * 1500 / 22.5;
-% FocalLength = 6000 pixels * 25 mm / 22.5 mm = 6667
-% For downsampled image, focalLength = 1500 pixels * 25mm / 22.5mm = 1667
+% FocalLength = 1500 pixels * 35 mm / 22.5 mm = 1667
 
 %% Read in images
 img = cell(numImg,1);
@@ -80,8 +79,6 @@ jmax = jmin + size(img{1},2) - 1;
 panorama(imin:imax, jmin:jmax, :) = img{1};
 
 for i=2:numImg
-   % overlapXmin = xlim(i,1);
-   % overlapXmax = xlim(i-1,2);
    % Handle overlap area
    ovimax = imax;  ovjmax = jmax;
    [ovimin, ovjmin] = worldToSubscript(panoramaRef,ceil(xlim(i,1)),ceil(ylim(i,1)));
@@ -89,8 +86,6 @@ for i=2:numImg
    
    [imin, jmin] = worldToSubscript(panoramaRef,ceil(xlim(i,1)), ceil(ylim(i,1)));
    [imax, jmax] = worldToSubscript(panoramaRef,floor(xlim(i,2)), floor(ylim(i,2)));
-   % imax = imin + size(img{i},1) - 1;
-   % jmax = jmin + size(img{i},2) - 1;
    
    overlapLength = ovjmax - ovjmin + 1;
    weight = meshgrid(0:overlapLength-1, ovimin:ovimax) / overlapLength;
@@ -102,8 +97,7 @@ for i=2:numImg
    [bndi1, bndj1] = worldToSubscript(ref(i),floor(xlim(i-1,2)), ceil(ylim(i,1)));
    [bndi2, bndj2] = worldToSubscript(ref(i),floor(xlim(i-1,2)), floor(ylim(i,2)));
    bndj = min(bndj1, bndj2);
-   % overlapLength = bndj - jmin + 1;
-   % weight = meshgrid(0:overlapLength-1, bndi1:bndi2) / overlapLength;
+
    weight = meshgrid(0:bndj-1, bndi1:bndi2) / bndj;
    weight = cat(3,weight,weight,weight);
    img{i}(bndi1:bndi2, 1:bndj, :) = ...

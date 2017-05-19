@@ -6,22 +6,12 @@ loc(r+1:r+m, r+1:r+n) = featureloc;
 numPoints = sum(sum(loc));
 tmp = zeros(numPoints,3);
 pointList = zeros(numPoints,3);
-% k=1;
-% for i=1:m
-%    for j=1:n
-%       if (loc(r+i,r+j))
-%          tmp(k,1) = i;
-%          tmp(k,2) = j;
-%          tmp(k,3) = points(i,j);
-%          k = k+1;
-%       end
-%    end
-% end
-[Y X] = meshgrid(1:n,1:m);
+
+[Y, X] = meshgrid(1:n,1:m);
 tmp(:,1) = X(loc(r+1:r+m, r+1:r+n));
 tmp(:,2) = Y(loc(r+1:r+m, r+1:r+n));
 tmp(:,3) = points(loc(r+1:r+m, r+1:r+n));
-[list I] = sort(tmp,1, 'descend');
+[~, I] = sort(tmp,1, 'descend');
 list = tmp(I(:,3)',:);
 
 

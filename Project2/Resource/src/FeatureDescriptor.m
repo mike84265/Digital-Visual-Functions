@@ -1,7 +1,5 @@
 function fdscpt = FeatureDescriptor(img,fpnt)
 %% variables:
-m = size(img,1);
-n = size(img,2);
 tmp = padarray(img,[40 40],'replicate');
 fdscpt = cell(size(fpnt,1),2);
 k = size(fpnt,1);

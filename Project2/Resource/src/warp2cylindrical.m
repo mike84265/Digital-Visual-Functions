@@ -21,8 +21,6 @@ cymin = min(cbound(5,2),cbound(6,2));
 cymax = max(cbound(3,2),cbound(4,2));
 cxc = 1-cxmin; cyc = 1-cymin;
 cylImg = uint8(zeros(cymax+cyc, cxmax+cxc,3));
-% fprintf('rxmin=%d, rymin=%d, rxmax=%d, rxmax=%d\n', rxmin, rymin, rxmax, rymax);
-% fprintf('cxmin=%d, cymin=%d, cxmax=%d, cymax=%d\n', cxmin, cymin, cxmax, cymax);
 
 %% inverse mapping to find the corresponding pixel to the image.
 for i=cxmin:cxmax
